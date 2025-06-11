@@ -88,17 +88,16 @@ const Title = styled.h2`
 `;
 
 const HeroImageWrapper = styled.div`
+  display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 0;
   width: 100%;
   opacity: ${({ visible }) => (visible ? 1 : 0)};
   pointer-events: ${({ visible }) => (visible ? "auto" : "none")};
   transform: ${({ visible }) =>
     visible ? "translateY(0px)" : "translateY(-40px)"};
   transition: opacity 0.8s cubic-bezier(0.4,0,0.2,1), transform 0.8s cubic-bezier(0.4,0,0.2,1);
-  display: flex;
-  position: relative;
   min-height: 40px;
 `;
 
@@ -111,6 +110,119 @@ const HeroImage = styled.img`
   object-fit: cover;
 `;
 
+const AboutSection = styled.section`
+  width: 100vw;
+  background: ${({ theme }) => theme.sectionBg || "#212325"};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2.5rem 0;
+  margin: 0;
+  min-height: 220px;
+  opacity: ${({ visible }) => (visible ? 1 : 0)};
+  transform: translateY(${({ visible }) => (visible ? "0" : "20px")});
+  transition: opacity 0.7s, transform 0.7s;
+  pointer-events: ${({ visible }) => (visible ? "auto" : "none")};
+  border-bottom: 1px solid ${({ theme }) => theme.accent};
+`;
+
+const AboutContent = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 2.5rem;
+  max-width: 820px;
+  width: 100%;
+  padding: 0 2rem;
+  @media (max-width: 760px) {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+`;
+
+const AboutLeft = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 175px;
+  max-width: 220px;
+`;
+
+const AboutImg = styled.img`
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 100%;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 8px 0 rgba(17,17,34,0.09);
+  background: #222;
+`;
+
+const ResumeLink = styled.a`
+  display: flex;
+  align-items: center;
+  background: ${({ theme }) => theme.accent};
+  color: ${({ theme }) => theme.text};
+  padding: 0.4rem 1rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+  text-decoration: none;
+  font-size: 1.03rem;
+  box-shadow: 0 1px 8px 0 rgba(17,17,34,0.11);
+  transition: background 0.18s;
+  &:hover {
+    background: ${({ theme }) => theme.text};
+    color: ${({ theme }) => theme.banner || "#181A1B"};
+  }
+  svg {
+    margin-right: 0.5rem;
+  }
+`;
+
+const LinkedInLink = styled.a`
+  display: flex;
+  align-items: center;
+  color: #0e76a8;
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-decoration: none;
+  margin-top: 0.2rem;
+  svg {
+    margin-right: 0.4rem;
+    font-size: 1.3em;
+  }
+  &:hover {
+    text-decoration: underline;
+    color: #09527a;
+  }
+`;
+
+const AboutRight = styled.div`
+  color: ${({ theme }) => theme.text};
+  font-size: 1.12rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  min-width: 260px;
+  max-width: 400px;
+  @media (max-width: 760px) {
+    max-width: 100%;
+    min-width: 0;
+    align-items: center;
+    text-align: center;
+  }
+`;
+
+const AboutSectionHeader = styled.h3`
+  font-size: 1.16rem;
+  margin: 0 0 0.4rem 0;
+  font-weight: 700;
+  color: ${({ theme }) => theme.accent};
+`;
+
+// --- BREAKOUT SECTION STYLES ---
 const Section = styled.section`
   width: 100vw;
   display: flex;
@@ -149,7 +261,6 @@ const ImagesRow = styled.div`
   margin-bottom: 1.5rem;
 `;
 
-// IMAGE SIZE: Doubled from previous (width: 350px, max-height: 360px)
 const SectionImg = styled.img`
   width: 350px;
   max-width: 100%;
@@ -165,6 +276,7 @@ const SectionImg = styled.img`
 
 function App() {
   const sectionRefs = {
+    about: useRef(null),
     work: useRef(null),
     school: useRef(null),
     personal: useRef(null),
@@ -173,6 +285,7 @@ function App() {
   const contentAnchorRef = useRef(null);
 
   const [revealedSections, setRevealedSections] = useState({
+    about: false,
     work: false,
     school: false,
     personal: false,
@@ -181,7 +294,60 @@ function App() {
   const [active, setActive] = useState(null);
   const [showHeroImage, setShowHeroImage] = useState(true);
   const [showNameTitle, setShowNameTitle] = useState(true);
+  const [showAbout, setShowAbout] = useState(true);
 
+  // Show about section only when hero is not visible and before first breakout section is reached.
+  useEffect(() => {
+    const handleScroll = () => {
+      // Viewport offsets
+      const heroRect = heroImageRef.current
+        ? heroImageRef.current.getBoundingClientRect()
+        : { bottom: 0, top: 0 };
+      const aboutRect = sectionRefs.about.current
+        ? sectionRefs.about.current.getBoundingClientRect()
+        : { top: 0, bottom: 0, height: 1 };
+      const workRect = sectionRefs.work.current
+        ? sectionRefs.work.current.getBoundingClientRect()
+        : { top: 0, height: 1 };
+
+      // Show hero if at the very top, else hide
+      if (window.scrollY < 30) {
+        setShowHeroImage(true);
+        setShowNameTitle(true);
+        setActive(null);
+        setShowAbout(true);
+      } else {
+        setShowHeroImage(heroRect.bottom > 64);
+        setShowNameTitle(false);
+      }
+
+      // About section shows after hero has scrolled out, but before work section begins
+      // About section is visible if its top is above nav but work section is not yet at top
+      if (!heroImageRef.current) {
+        setShowAbout(false);
+        return;
+      }
+      const navHeight = document.querySelector("nav")?.offsetHeight || 64;
+      if (
+        heroRect.bottom <= navHeight + 1 && // Hero is out of view
+        workRect.top > navHeight + 1 // Work section not reached yet
+      ) {
+        setShowAbout(true);
+      } else {
+        setShowAbout(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+    // eslint-disable-next-line
+  }, []);
+
+  // Section reveal on scroll
   useEffect(() => {
     const observer = new window.IntersectionObserver(
       (entries) => {
@@ -212,27 +378,7 @@ function App() {
     // eslint-disable-next-line
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY < 50) {
-        setShowHeroImage(true);
-        setShowNameTitle(true);
-        setActive(null);
-      } else {
-        setShowHeroImage(false);
-        setShowNameTitle(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  // Helper function to scroll with navbar offset
+  // Helper: Scroll with navbar offset
   const scrollToSection = (ref) => {
     if (ref && ref.current) {
       const nav = document.querySelector("nav");
@@ -279,6 +425,12 @@ function App() {
             Home
           </BannerHomeButton>
           <BannerButton
+            onClick={() => handleNav("about")}
+            selected={active === "about"}
+          >
+            About
+          </BannerButton>
+          <BannerButton
             onClick={() => handleNav("work")}
             selected={active === "work"}
           >
@@ -305,6 +457,63 @@ function App() {
       >
         <HeroImage src="docs/assets/background.jpg" alt="Background" />
       </HeroImageWrapper>
+      {/* About Me Section */}
+      <AboutSection
+        ref={sectionRefs.about}
+        visible={showAbout}
+        style={{
+          margin: 0,
+          borderTop: showHeroImage ? "none" : undefined,
+        }}
+      >
+        <AboutContent>
+          <AboutLeft>
+            <AboutImg
+              src="docs/assets/DSC07786.jpg"
+              alt="Tanner Josiah Peck"
+            />
+            <ResumeLink
+              href="docs/assets/Tanner-Peck-Resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+            >
+              <svg
+                height="1.2em"
+                viewBox="0 0 24 24"
+                width="1.2em"
+                fill="currentColor"
+                style={{ marginRight: "0.4rem", marginBottom: "0.12em" }}
+              >
+                <path d="M5 20h14v-2H5m14-9h-4V3H9v6H5l7 7 7-7z" />
+              </svg>
+              Download Resume
+            </ResumeLink>
+            <LinkedInLink
+              href="https://www.linkedin.com/in/tanner-josiah-peck/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg fill="currentColor" viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.761 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.268c-.966 0-1.75-.784-1.75-1.75s.784-1.75 1.75-1.75 1.75.784 1.75 1.75-.784 1.75-1.75 1.75zm15.5 11.268h-3v-5.604c0-1.337-.025-3.063-1.868-3.063-1.868 0-2.154 1.46-2.154 2.969v5.698h-3v-10h2.881v1.367h.041c.401-.761 1.381-1.563 2.845-1.563 3.044 0 3.604 2.004 3.604 4.609v5.587z"/>
+              </svg>
+              LinkedIn
+            </LinkedInLink>
+          </AboutLeft>
+          <AboutRight>
+            <AboutSectionHeader>Background</AboutSectionHeader>
+            <div>
+              B.S in Mechanical Engineering, Syracuse University
+            </div>
+            <AboutSectionHeader>Skills</AboutSectionHeader>
+            <div>
+              Solidworks, Autodesk Inventor, Onshape, MATLAB, RStudio, NI Multisim, Arduino, Microsoft (Word, Powerpoint, Excel),<br />
+              3D Printing, Mechanical Assembly, Machine Lab Trained.
+            </div>
+          </AboutRight>
+        </AboutContent>
+      </AboutSection>
+
       <ContentAnchor ref={contentAnchorRef} />
 
       <div>
