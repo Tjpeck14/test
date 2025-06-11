@@ -94,6 +94,7 @@ function App() {
 
   // --- Observer to reveal sections on scroll ---
   useEffect(() => {
+    // Lower threshold and add rootMargin for last section
     const observer = new window.IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -106,7 +107,10 @@ function App() {
           }
         });
       },
-      { threshold: 0.15 }
+      {
+        threshold: 0.01, // 1% of section visible
+        rootMargin: "0px 0px -40% 0px", // trigger when 40% from bottom of viewport
+      }
     );
 
     Object.entries(sectionRefs).forEach(([id, ref]) => {
