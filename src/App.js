@@ -149,11 +149,12 @@ const ImagesRow = styled.div`
   margin-bottom: 1.5rem;
 `;
 
+// IMAGE SIZE: Doubled from previous (width: 350px, max-height: 360px)
 const SectionImg = styled.img`
-  width: 175px;
+  width: 350px;
   max-width: 100%;
   height: auto;
-  max-height: 180px;
+  max-height: 360px;
   object-fit: contain;
   border-radius: 0.7rem;
   background: #222;
