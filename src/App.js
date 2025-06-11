@@ -70,8 +70,8 @@ function App() {
     <ThemeProvider theme={darkTheme}>
       <GlobalStyle />
       <NameTitle>
-        <Name>Tj Peck</Name>
-        <Title>Developer & Creator</Title>
+        <Name>Tanner Josiah Peck</Name>
+        <Title>Engineering and Design Portfolio</Title>
       </NameTitle>
       <ButtonRow>
         {sections.map(({ id, label }) => (
