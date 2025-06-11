@@ -78,14 +78,43 @@ function App() {
   const heroImageRef = useRef(null);
   const contentAnchorRef = useRef(null);
 
+  // Track which sections are revealed
+  const [revealedSections, setRevealedSections] = useState({
+    work: false,
+    school: false,
+    personal: false,
+  });
+  // The last section actively navigated to
   const [active, setActive] = useState(null);
   const [showHeroImage, setShowHeroImage] = useState(true);
+
+  // Intersection Observer to reveal sections as they scroll into view
+  useEffect(() => {
+    const observer = new window.IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute("data-section-id");
+            setRevealedSections((rs) => (rs[id] ? rs : { ...rs, [id]: true }));
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+    Object.entries(sectionRefs).forEach(([id, ref]) => {
+      if (ref.current) {
+        ref.current.setAttribute("data-section-id", id);
+        observer.observe(ref.current);
+      }
+    });
+    return () => observer.disconnect();
+    // eslint-disable-next-line
+  }, []);
 
   // Show hero image if at top, or if no section is selected
   useEffect(() => {
     const handleScroll = () => {
       if (active === null) {
-        // If at top, show image; otherwise, hide
         if (window.scrollY < (heroImageRef.current?.offsetTop || 200)) {
           setShowHeroImage(true);
         } else {
@@ -93,28 +122,25 @@ function App() {
         }
       }
     };
-
     if (active === null) {
       window.addEventListener("scroll", handleScroll);
-      handleScroll(); // set initial
+      handleScroll();
     }
-
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, [active]);
 
-  // When a section is clicked, hide the hero image and scroll below it
+  // When a section is clicked, reveal it and scroll below the hero image
   const handleNav = (id) => {
+    setRevealedSections((rs) => ({ ...rs, [id]: true }));
     setActive(id);
     setShowHeroImage(false);
     setTimeout(() => {
       contentAnchorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       sectionRefs[id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 120); // slight delay to allow hide animation
+    }, 120);
   };
-
-  // When no section is active and user scrolls up, show the image again (handled above)
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -146,7 +172,7 @@ function App() {
       <div>
         <Section
           ref={sectionRefs.work}
-          visible={active === "work"}
+          visible={revealedSections.work}
           style={{ minHeight: "340px" }}
         >
           <>
@@ -226,7 +252,7 @@ function App() {
         </Section>
         <Section
           ref={sectionRefs.school}
-          visible={active === "school"}
+          visible={revealedSections.school}
           style={{ minHeight: "340px" }}
         >
           <>
@@ -252,7 +278,7 @@ function App() {
         </Section> 
         <Section
           ref={sectionRefs.personal}
-          visible={active === "personal"}
+          visible={revealedSections.personal}
           style={{ minHeight: "340px" }}
         >
           <>
