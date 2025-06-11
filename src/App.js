@@ -14,11 +14,20 @@ const BannerNav = styled.nav`
   background: ${({ theme }) => theme.banner || "#181A1B"};
   box-shadow: 0 2px 24px 0 rgba(17,17,34,0.18);
   padding: 0.5rem 0.5rem;
+  min-height: 56px;
   display: flex;
   align-items: center;
+  justify-content: center; /* This centers content horizontally */
   gap: 1rem;
   transition: background 0.3s;
-  min-height: 56px;
+`;
+
+const BannerNavInner = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 900px; /* You can adjust this to best fit your site */
+  width: 100%;
 `;
 
 const BannerButton = styled.button`
@@ -132,7 +141,6 @@ const ContentAnchor = styled.div`
   height: 0;
 `;
 
-// --- FLEX IMAGE WRAPPER ---
 const ImagesRow = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -142,10 +150,10 @@ const ImagesRow = styled.div`
 `;
 
 const SectionImg = styled.img`
-  width: 175px;
+  width: 220px; /* 175px * 1.25 ≈ 220px */
   max-width: 100%;
   height: auto;
-  max-height: 180px;
+  max-height: 225px; /* 180px * 1.25 ≈ 225px */
   object-fit: contain;
   border-radius: 0.7rem;
   background: #222;
@@ -248,31 +256,33 @@ function App() {
       </NameTitle>
 
       <BannerNav>
-        <BannerHomeButton
-          onClick={handleHome}
-          selected={active === null}
-          aria-label="Home"
-        >
-          Home
-        </BannerHomeButton>
-        <BannerButton
-          onClick={() => handleNav("work")}
-          selected={active === "work"}
-        >
-          Professional Work
-        </BannerButton>
-        <BannerButton
-          onClick={() => handleNav("school")}
-          selected={active === "school"}
-        >
-          School Work
-        </BannerButton>
-        <BannerButton
-          onClick={() => handleNav("personal")}
-          selected={active === "personal"}
-        >
-          Personal Projects
-        </BannerButton>
+        <BannerNavInner>
+          <BannerHomeButton
+            onClick={handleHome}
+            selected={active === null}
+            aria-label="Home"
+          >
+            Home
+          </BannerHomeButton>
+          <BannerButton
+            onClick={() => handleNav("work")}
+            selected={active === "work"}
+          >
+            Professional Work
+          </BannerButton>
+          <BannerButton
+            onClick={() => handleNav("school")}
+            selected={active === "school"}
+          >
+            School Work
+          </BannerButton>
+          <BannerButton
+            onClick={() => handleNav("personal")}
+            selected={active === "personal"}
+          >
+            Personal Projects
+          </BannerButton>
+        </BannerNavInner>
       </BannerNav>
 
       <HeroImageWrapper
