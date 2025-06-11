@@ -17,7 +17,7 @@ const BannerNav = styled.nav`
   min-height: 56px;
   display: flex;
   align-items: center;
-  justify-content: center; /* This centers content horizontally */
+  justify-content: center;
   gap: 1rem;
   transition: background 0.3s;
 `;
@@ -26,7 +26,7 @@ const BannerNavInner = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: 900px; /* You can adjust this to best fit your site */
+  max-width: 900px;
   width: 100%;
 `;
 
@@ -150,10 +150,10 @@ const ImagesRow = styled.div`
 `;
 
 const SectionImg = styled.img`
-  width: 220px; /* 175px * 1.25 ≈ 220px */
+  width: 175px;
   max-width: 100%;
   height: auto;
-  max-height: 225px; /* 180px * 1.25 ≈ 225px */
+  max-height: 180px;
   object-fit: contain;
   border-radius: 0.7rem;
   background: #222;
@@ -231,14 +231,27 @@ function App() {
     };
   }, []);
 
+  // Helper function to scroll with navbar offset
+  const scrollToSection = (ref) => {
+    if (ref && ref.current) {
+      const nav = document.querySelector("nav");
+      const navHeight = nav ? nav.offsetHeight : 64;
+      const top =
+        ref.current.getBoundingClientRect().top +
+        window.pageYOffset -
+        navHeight -
+        10; // Add a little extra spacing
+      window.scrollTo({ top, behavior: "smooth" });
+    }
+  };
+
   const handleNav = (id) => {
     setRevealedSections((rs) => ({ ...rs, [id]: true }));
     setActive(id);
     setShowHeroImage(false);
     setShowNameTitle(false);
     setTimeout(() => {
-      contentAnchorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      sectionRefs[id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      scrollToSection(sectionRefs[id]);
     }, 120);
   };
 
@@ -302,7 +315,6 @@ function App() {
         >
           <SectionInner>
             <h2 style={{ marginTop: 0 }}>Professional Work Experience</h2>
-            <h2>Professional Projects &amp; Work Experience</h2>
             <h3>Engineering Internship at Lasko Products, West Chester PA</h3>
             <p>Managed multiple projects in different divisions of Lasko Products as the sole Engineering Intern</p>
             <h4>Product Breakdown and Cost Analysis</h4>
@@ -375,7 +387,6 @@ function App() {
         >
           <SectionInner>
             <h2 style={{ marginTop: 0 }}>School and Educational Work</h2>
-            <h2>School Projects and Educational Pursuits</h2>
             <h3>Project 1: Linear Inverted Pendulum Control</h3>
             <ImagesRow>
               <SectionImg src="/images/lip.jpg" alt="LIP Control" />
@@ -400,7 +411,6 @@ function App() {
         >
           <SectionInner>
             <h2 style={{ marginTop: 0 }}>Personal Projects</h2>
-            <h2>Personal &amp; Passion Projects</h2>
             <h4>College Dorm Room Layout</h4>
             <p>Designed in Onshape</p>
             <ImagesRow>
