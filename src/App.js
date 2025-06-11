@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import GlobalStyle from "./GlobalStyle";
 import { darkTheme } from "./theme";
@@ -28,27 +28,24 @@ const ButtonRow = styled.div`
   display: flex;
   justify-content: center;
   gap: 2rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
 `;
 
-const HeroBackground = styled.div`
+const HeroImageWrapper = styled.div`
   display: ${({ visible }) => (visible ? "flex" : "none")};
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: flex-start;
-  min-height: 40vh;
-  width: 100%;
   margin-bottom: 2.5rem;
   transition: opacity 0.7s;
   opacity: ${({ visible }) => (visible ? 1 : 0)};
+  width: 100%;
 `;
 
-const BackgroundImage = styled.img`
+const HeroImage = styled.img`
   max-width: 700px;
   width: 90vw;
   height: auto;
   border-radius: 1.2rem;
-  margin: 0 auto 1.5rem auto;
   box-shadow: 0 2px 24px 0 rgba(17,17,34,0.18);
   object-fit: cover;
 `;
@@ -67,23 +64,57 @@ const Section = styled.section`
   color: ${({ theme }) => theme.text};
 `;
 
+// This wrapper is for scrolling below the hero image
+const ContentAnchor = styled.div`
+  height: 0;
+`;
+
 function App() {
   const sectionRefs = {
     work: useRef(null),
     school: useRef(null),
-    personal: useRef(null)
+    personal: useRef(null),
   };
-  const [active, setActive] = React.useState(null);
+  const heroImageRef = useRef(null);
+  const contentAnchorRef = useRef(null);
 
+  const [active, setActive] = useState(null);
+  const [showHeroImage, setShowHeroImage] = useState(true);
+
+  // Show hero image if at top, or if no section is selected
+  useEffect(() => {
+    const handleScroll = () => {
+      if (active === null) {
+        // If at top, show image; otherwise, hide
+        if (window.scrollY < (heroImageRef.current?.offsetTop || 200)) {
+          setShowHeroImage(true);
+        } else {
+          setShowHeroImage(false);
+        }
+      }
+    };
+
+    if (active === null) {
+      window.addEventListener("scroll", handleScroll);
+      handleScroll(); // set initial
+    }
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [active]);
+
+  // When a section is clicked, hide the hero image and scroll below it
   const handleNav = (id) => {
     setActive(id);
+    setShowHeroImage(false);
     setTimeout(() => {
+      contentAnchorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       sectionRefs[id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+    }, 120); // slight delay to allow hide animation
   };
 
-  // Show hero background image only when no section is selected
-  const showHeroBackground = active === null;
+  // When no section is active and user scrolls up, show the image again (handled above)
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -92,12 +123,6 @@ function App() {
         <Name>Tanner Josiah Peck</Name>
         <Title>Engineering and Design Portfolio</Title>
       </NameTitle>
-      <HeroBackground visible={showHeroBackground}>
-        <BackgroundImage
-          src="docs/assets/background.jpg"
-          alt="Background"
-        />
-      </HeroBackground>
       <ButtonRow>
         <SectionButton onClick={() => handleNav("work")}>
           Professional Work Experience
@@ -109,6 +134,15 @@ function App() {
           Personal Projects
         </SectionButton>
       </ButtonRow>
+      {/* Hero image below title and section selects */}
+      <HeroImageWrapper
+        visible={showHeroImage && active === null}
+        ref={heroImageRef}
+      >
+        <HeroImage src="docs/assets/background.jpg" alt="Background" />
+      </HeroImageWrapper>
+      {/* Anchor for scrolling below the hero image */}
+      <ContentAnchor ref={contentAnchorRef} />
       <div>
         <Section
           ref={sectionRefs.work}
