@@ -31,14 +31,20 @@ const ButtonRow = styled.div`
   margin-bottom: 2.5rem;
 `;
 
+// For smooth fade/slide transitions
 const HeroImageWrapper = styled.div`
-  display: ${({ visible }) => (visible ? "flex" : "none")};
   justify-content: center;
   align-items: center;
   margin-bottom: 2.5rem;
-  transition: opacity 0.7s;
-  opacity: ${({ visible }) => (visible ? 1 : 0)};
   width: 100%;
+  opacity: ${({ visible }) => (visible ? 1 : 0)};
+  pointer-events: ${({ visible }) => (visible ? "auto" : "none")};
+  transform: ${({ visible }) =>
+    visible ? "translateY(0px)" : "translateY(-40px)"};
+  transition: opacity 0.8s cubic-bezier(0.4,0,0.2,1), transform 0.8s cubic-bezier(0.4,0,0.2,1);
+  display: flex;
+  position: relative;
+  min-height: 40px;
 `;
 
 const HeroImage = styled.img`
@@ -69,7 +75,6 @@ const ContentAnchor = styled.div`
 `;
 
 function App() {
-  // Section refs
   const sectionRefs = {
     work: useRef(null),
     school: useRef(null),
@@ -78,18 +83,16 @@ function App() {
   const heroImageRef = useRef(null);
   const contentAnchorRef = useRef(null);
 
-  // Track which sections are revealed
   const [revealedSections, setRevealedSections] = useState({
     work: false,
     school: false,
     personal: false,
   });
 
-  // The last section actively navigated to
   const [active, setActive] = useState(null);
   const [showHeroImage, setShowHeroImage] = useState(true);
 
-  // Observer to reveal sections as they scroll into view
+  // --- Observer to reveal sections on scroll ---
   useEffect(() => {
     const observer = new window.IntersectionObserver(
       (entries) => {
@@ -97,10 +100,7 @@ function App() {
           if (entry.isIntersecting) {
             const id = entry.target.getAttribute("data-section-id");
             setRevealedSections((rs) => {
-              // Only update if not already revealed
-              if (!rs[id]) {
-                return { ...rs, [id]: true };
-              }
+              if (!rs[id]) return { ...rs, [id]: true };
               return rs;
             });
           }
@@ -109,7 +109,6 @@ function App() {
       { threshold: 0.15 }
     );
 
-    // Observe only after refs are assigned
     Object.entries(sectionRefs).forEach(([id, ref]) => {
       if (ref.current) {
         ref.current.setAttribute("data-section-id", id);
@@ -121,36 +120,39 @@ function App() {
     // eslint-disable-next-line
   }, []);
 
-  // Show hero image only at the very top and no section has been selected
+  // --- Hero image fade-in/out and logic for scrolling to top ---
   useEffect(() => {
     const handleScroll = () => {
-      // Only show hero at the very top and no section button has been actively selected
-      if (active === null && window.scrollY < 50) {
+      // Always show hero at the very top, and reset active to null so text/hero fade is smooth
+      if (window.scrollY < 50) {
         setShowHeroImage(true);
+        setActive(null); // This allows the hero image to come back after section click
       } else {
         setShowHeroImage(false);
       }
     };
-    window.addEventListener("scroll", handleScroll);
-    handleScroll(); // initial check
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Set initial state
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [active]);
+  }, []);
 
-  // When a section is clicked, reveal it and scroll below the hero image
+  // --- Section navigation ---
   const handleNav = (id) => {
     setRevealedSections((rs) => ({ ...rs, [id]: true }));
     setActive(id);
     setShowHeroImage(false);
     setTimeout(() => {
+      // If you want to scroll to just below the image
       contentAnchorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       sectionRefs[id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 120);
   };
 
-  // Section rendering - always render, but control visibility with "visible"
+  // --- Render ---
   return (
     <ThemeProvider theme={darkTheme}>
       <GlobalStyle />
@@ -169,6 +171,7 @@ function App() {
           Personal Projects
         </SectionButton>
       </ButtonRow>
+      {/* Hero image below title and section selects, always rendered for smooth fade/slide */}
       <HeroImageWrapper
         visible={showHeroImage}
         ref={heroImageRef}
@@ -187,12 +190,10 @@ function App() {
             <h2>Professional Projects &amp; Work Experience</h2>
             <h3>Engineering Internship at Lasko Products, West Chester PA</h3>
             <p>Managed multiple projects in different divisions of Lasko Products as the sole Engineering Intern</p>
-
             <h4>Product Breakdown and Cost Analysis</h4>
             <p>
               Took apart and categorized all parts of multiple models of fans, blowers, heaters, and even dehumidifiers to create a detailed cost analysis of the materials used in each model. Each unit was taken apart, and all the materials were weighed, down to the copper in the wiring.
             </p>
-
             <h4>2000 CFM Test Chamber</h4>
             <p>
               Operated a 2000 CFM Test Chamber developed by Airflow Measurement Systems. Was tasked to correlate results from the chamber with data received from outsourced testing to assess accuracy of the machine. I also wrote an operating procedure for testing Box Fan units on this specific model.
@@ -282,7 +283,7 @@ function App() {
               Used Ansys to simulate fatigue behavior of PA12-polyamide hinges under repeated loading in aerospace mockups.
             </p>
           </>
-        </Section> 
+        </Section>
         <Section
           ref={sectionRefs.personal}
           visible={revealedSections.personal}
