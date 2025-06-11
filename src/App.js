@@ -46,9 +46,9 @@ const Section = styled.section`
 `;
 
 const sections = [
-  { id: "work", label: "Professional Work Experience" },
-  { id: "school", label: "School and Educational Work" },
-  { id: "personal", label: "Personal Projects" }
+  { id: "Professional Work Experience", label: "Professional Work Experience" },
+  { id: "School and Educational Work", label: "School and Educational Work" },
+  { id: "Personal Projects", label: "Personal Projects" }
 ];
 
 function App() {
