@@ -64,12 +64,12 @@ const Section = styled.section`
   color: ${({ theme }) => theme.text};
 `;
 
-// This wrapper is for scrolling below the hero image
 const ContentAnchor = styled.div`
   height: 0;
 `;
 
 function App() {
+  // Section refs
   const sectionRefs = {
     work: useRef(null),
     school: useRef(null),
@@ -84,48 +84,56 @@ function App() {
     school: false,
     personal: false,
   });
+
   // The last section actively navigated to
   const [active, setActive] = useState(null);
   const [showHeroImage, setShowHeroImage] = useState(true);
 
-  // Intersection Observer to reveal sections as they scroll into view
+  // Observer to reveal sections as they scroll into view
   useEffect(() => {
     const observer = new window.IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const id = entry.target.getAttribute("data-section-id");
-            setRevealedSections((rs) => (rs[id] ? rs : { ...rs, [id]: true }));
+            setRevealedSections((rs) => {
+              // Only update if not already revealed
+              if (!rs[id]) {
+                return { ...rs, [id]: true };
+              }
+              return rs;
+            });
           }
         });
       },
-      { threshold: 0.2 }
+      { threshold: 0.15 }
     );
+
+    // Observe only after refs are assigned
     Object.entries(sectionRefs).forEach(([id, ref]) => {
       if (ref.current) {
         ref.current.setAttribute("data-section-id", id);
         observer.observe(ref.current);
       }
     });
+
     return () => observer.disconnect();
     // eslint-disable-next-line
   }, []);
 
-  // Show hero image if at top, or if no section is selected
+  // Show hero image only at the very top and no section has been selected
   useEffect(() => {
     const handleScroll = () => {
-      if (active === null) {
-        if (window.scrollY < (heroImageRef.current?.offsetTop || 200)) {
-          setShowHeroImage(true);
-        } else {
-          setShowHeroImage(false);
-        }
+      // Only show hero at the very top and no section button has been actively selected
+      if (active === null && window.scrollY < 50) {
+        setShowHeroImage(true);
+      } else {
+        setShowHeroImage(false);
       }
     };
-    if (active === null) {
-      window.addEventListener("scroll", handleScroll);
-      handleScroll();
-    }
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // initial check
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
@@ -142,6 +150,7 @@ function App() {
     }, 120);
   };
 
+  // Section rendering - always render, but control visibility with "visible"
   return (
     <ThemeProvider theme={darkTheme}>
       <GlobalStyle />
@@ -160,14 +169,12 @@ function App() {
           Personal Projects
         </SectionButton>
       </ButtonRow>
-      {/* Hero image below title and section selects */}
       <HeroImageWrapper
-        visible={showHeroImage && active === null}
+        visible={showHeroImage}
         ref={heroImageRef}
       >
         <HeroImage src="docs/assets/background.jpg" alt="Background" />
       </HeroImageWrapper>
-      {/* Anchor for scrolling below the hero image */}
       <ContentAnchor ref={contentAnchorRef} />
       <div>
         <Section
