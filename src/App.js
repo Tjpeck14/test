@@ -53,8 +53,6 @@ const BannerHomeButton = styled(BannerButton)`
   }
 `;
 
-// --- END BANNER NAV ---
-
 const NameTitle = styled.div`
   text-align: center;
   margin-top: 3rem;
@@ -106,6 +104,9 @@ const HeroImage = styled.img`
 
 const Section = styled.section`
   width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin: 0 auto 3rem auto;
   padding: 3rem 0 3rem 0;
   background: ${({ theme }) => theme.sectionBg || "#212325"};
@@ -124,10 +125,33 @@ const SectionInner = styled.div`
   max-width: 800px;
   margin: 0 auto;
   padding: 0 2rem;
+  width: 100%;
 `;
 
 const ContentAnchor = styled.div`
   height: 0;
+`;
+
+// --- FLEX IMAGE WRAPPER ---
+const ImagesRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: flex-start;
+  margin-bottom: 1.5rem;
+`;
+
+const SectionImg = styled.img`
+  width: 175px;
+  max-width: 100%;
+  height: auto;
+  max-height: 180px;
+  object-fit: contain;
+  border-radius: 0.7rem;
+  background: #222;
+  box-shadow: 0 1px 8px 0 rgba(17,17,34,0.09);
+  margin-bottom: 0.5rem;
+  aspect-ratio: 4/3;
 `;
 
 function App() {
@@ -149,9 +173,7 @@ function App() {
   const [showHeroImage, setShowHeroImage] = useState(true);
   const [showNameTitle, setShowNameTitle] = useState(true);
 
-  // --- Observer to reveal sections on scroll ---
   useEffect(() => {
-    // Lower threshold and add rootMargin for last section
     const observer = new window.IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -165,8 +187,8 @@ function App() {
         });
       },
       {
-        threshold: 0.01, // 1% of section visible
-        rootMargin: "0px 0px -40% 0px", // trigger when 40% from bottom of viewport
+        threshold: 0.01,
+        rootMargin: "0px 0px -40% 0px",
       }
     );
 
@@ -181,10 +203,8 @@ function App() {
     // eslint-disable-next-line
   }, []);
 
-  // --- Hero image fade-in/out and logic for scrolling to top ---
   useEffect(() => {
     const handleScroll = () => {
-      // Always show hero at the very top, and reset active to null so text/hero fade is smooth
       if (window.scrollY < 50) {
         setShowHeroImage(true);
         setShowNameTitle(true);
@@ -196,14 +216,13 @@ function App() {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Set initial state
+    handleScroll();
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
-  // --- Section navigation ---
   const handleNav = (id) => {
     setRevealedSections((rs) => ({ ...rs, [id]: true }));
     setActive(id);
@@ -220,7 +239,6 @@ function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // --- Render ---
   return (
     <ThemeProvider theme={darkTheme}>
       <GlobalStyle />
@@ -229,7 +247,6 @@ function App() {
         <Title>Engineering and Design Portfolio</Title>
       </NameTitle>
 
-      {/* --- BANNER NAV --- */}
       <BannerNav>
         <BannerHomeButton
           onClick={handleHome}
@@ -257,9 +274,7 @@ function App() {
           Personal Projects
         </BannerButton>
       </BannerNav>
-      {/* --- END BANNER NAV --- */}
 
-      {/* Hero image below title and section selects, always rendered for smooth fade/slide */}
       <HeroImageWrapper
         visible={showHeroImage}
         ref={heroImageRef}
@@ -288,58 +303,58 @@ function App() {
             <p>
               Operated a 2000 CFM Test Chamber developed by Airflow Measurement Systems. Was tasked to correlate results from the chamber with data received from outsourced testing to assess accuracy of the machine. I also wrote an operating procedure for testing Box Fan units on this specific model.
             </p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/Lasko-CFM.jpg" alt="2000 CFM Test Chamber" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Lasko-CFM-2.jpg" alt="2000 CFM Test Chamber 2" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/Lasko-CFM.jpg" alt="2000 CFM Test Chamber" />
+              <SectionImg src="docs/assets/Lasko-CFM-2.jpg" alt="2000 CFM Test Chamber 2" />
+            </ImagesRow>
             <h4>Motor Failure Testing</h4>
             <p>
               Ran locked rotary tests on multiple models of fan motors to identify if any models were unsafe when surrounded by a flammable material like insulation. Each motor had the TCU (thermal cutoff) removed, which is the mechanism that shuts down the motor if it gets too hot.
             </p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/Lasko-Motor.jpg" alt="Motor Failure Testing" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Lasko-Motor-2.jpg" alt="Motor Failure Testing 2" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/Lasko-Motor.jpg" alt="Motor Failure Testing" />
+              <SectionImg src="docs/assets/Lasko-Motor-2.jpg" alt="Motor Failure Testing 2" />
+            </ImagesRow>
             <h4>Heat Rise Testing</h4>
             <p>
               Developed and wrote the operating procedure for a Heat-Rise Testing Room. This room was used as a control area to gauge how effective different models of household heaters are at changing the temperature of a room. Soldered and set up thermocouples throughout the room connecting them to a DATAQ analyzer, and ran multiple base tests to assess the success of the project.
             </p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/Lasko-Heat-Rise.jpg" alt="Heat Rise Testing" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Lasko-Heat-Rise-2.jpg" alt="Heat Rise Testing 2" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/Lasko-Heat-Rise.jpg" alt="Heat Rise Testing" />
+              <SectionImg src="docs/assets/Lasko-Heat-Rise-2.jpg" alt="Heat Rise Testing 2" />
+            </ImagesRow>
             <h3>WEB GCS Accessories Project with RedCat Holdings, Salt Lake City UT</h3>
             <p>
               Developed field-attachable accessories for a military-grade drone controller, including a secondary display unit, glare-reducing screens, and light-blocking stealth shields
             </p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/REDCAT-SOLIDWORKS-Assembly-2.jpg" alt="WEB GCS" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/REDCAT-SOLIDWORKS-Assembly.jpg" alt="WEB GCS 2" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/REDCAT-Assembly.jpg" alt="WEB GCS 3" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/REDCAT-SOLIDWORKS-Assembly-2.jpg" alt="WEB GCS" />
+              <SectionImg src="docs/assets/REDCAT-SOLIDWORKS-Assembly.jpg" alt="WEB GCS 2" />
+              <SectionImg src="docs/assets/REDCAT-Assembly.jpg" alt="WEB GCS 3" />
+            </ImagesRow>
             <h4>Secondary Display Unit</h4>
             <p>
               Developed field-attachable accessories for a military-grade drone controller, including a secondary display unit, glare-reducing screens, and light-blocking stealth shields
             </p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/REDCAT-SOLIDWORKS-Screen.jpg" alt="Secondary Display Unit" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/REDCAT-Screen.jpg" alt="Secondary Display Unit 2" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/REDCAT-SOLIDWORKS-Screen.jpg" alt="Secondary Display Unit" />
+              <SectionImg src="docs/assets/REDCAT-Screen.jpg" alt="Secondary Display Unit 2" />
+            </ImagesRow>
             <h4>Sunshade/Protective Cover</h4>
             <p>
               Developed field-attachable accessories for a military-grade drone controller, including a secondary display unit, glare-reducing screens, and light-blocking stealth shields
             </p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/REDCAT-SOLIDWORKS-Shader.jpg" alt="Sunshade/Protective Cover" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/REDCAT-SOLIDWORKS-Shader-2.jpg" alt="Sunshade/Protective Cover 2" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/REDCAT-SOLIDWORKS-Shader.jpg" alt="Sunshade/Protective Cover" />
+              <SectionImg src="docs/assets/REDCAT-SOLIDWORKS-Shader-2.jpg" alt="Sunshade/Protective Cover 2" />
+            </ImagesRow>
             <h4>Directional Antenna</h4>
             <p>
               Developed field-attachable accessories for a military-grade drone controller, including a secondary display unit, glare-reducing screens, and light-blocking stealth shields
             </p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/REDCAT-Antenna-Specs.jpg" alt="Directional Antenna" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/REDCAT-Antenna-Specs.jpg" alt="Directional Antenna" />
+            </ImagesRow>
           </SectionInner>
         </Section>
         {/* SECTION 2 */}
@@ -352,16 +367,16 @@ function App() {
             <h2 style={{ marginTop: 0 }}>School and Educational Work</h2>
             <h2>School Projects and Educational Pursuits</h2>
             <h3>Project 1: Linear Inverted Pendulum Control</h3>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="/images/lip.jpg" alt="LIP Control" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="/images/lip.jpg" alt="LIP Control" />
+            </ImagesRow>
             <p>
               Implemented LQR state-feedback in MATLAB to control an inverted pendulum on a cart, analyzing stability and performance.
             </p>
             <h3>Project 2: Fatigue Testing of SLS-Printed Hinges</h3>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="/images/fatigue.jpg" alt="Fatigue Testing" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="/images/fatigue.jpg" alt="Fatigue Testing" />
+            </ImagesRow>
             <p>
               Used Ansys to simulate fatigue behavior of PA12-polyamide hinges under repeated loading in aerospace mockups.
             </p>
@@ -378,95 +393,94 @@ function App() {
             <h2>Personal &amp; Passion Projects</h2>
             <h4>College Dorm Room Layout</h4>
             <p>Designed in Onshape</p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/Dorm-Room.jpg" alt="College Dorm Room" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Dorm-Room-2.jpg" alt="College Dorm Room 2" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Dorm-Room-3.jpg" alt="College Dorm Room 3" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/Dorm-Room.jpg" alt="College Dorm Room" />
+              <SectionImg src="docs/assets/Dorm-Room-2.jpg" alt="College Dorm Room 2" />
+              <SectionImg src="docs/assets/Dorm-Room-3.jpg" alt="College Dorm Room 3" />
+            </ImagesRow>
             <h4>Remote Control Door Lock</h4>
             <p>
               Created a fully functional, screen-accurate remote control door lock as seen in the 2012 Amazing Spider-Man movie. This lock was a bolt lock powered by a linear actuator and connected to a remote control switch, allowing me to lock and unlock the door without having to move.
             </p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/Arduino-Lock.jpg" alt="Spider-Man Remote Control Door Lock" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Arduino-Lock-2.jpg" alt="Spider-Man Remote Control Door Lock 2" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/Arduino-Lock.jpg" alt="Spider-Man Remote Control Door Lock" />
+              <SectionImg src="docs/assets/Arduino-Lock-2.jpg" alt="Spider-Man Remote Control Door Lock 2" />
+            </ImagesRow>
             <h4>Rocket Design</h4>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/Rocket-Full.jpg" alt="Rocket Design" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Rocket-1.jpg" alt="Rocket Design 1" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Rocket-2.jpg" alt="Rocket Design 2" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Rocket-3.jpg" alt="Rocket Design 3" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Rocket-4.jpg" alt="Rocket Design 4" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Rocket-5.jpg" alt="Rocket Design 5" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Rocket-6.jpg" alt="Rocket Design 6" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Rocket-7.jpg" alt="Rocket Design 7" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Rocket-Engine.jpg" alt="Rocket Engine" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Rocket-Engine-Diagram.jpg" alt="Rocket Engine Diagram" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Rocket-Fuel-Pump.jpg" alt="Rocket Fuel Pump" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/Rocket-Full.jpg" alt="Rocket Design" />
+              <SectionImg src="docs/assets/Rocket-1.jpg" alt="Rocket Design 1" />
+              <SectionImg src="docs/assets/Rocket-2.jpg" alt="Rocket Design 2" />
+              <SectionImg src="docs/assets/Rocket-3.jpg" alt="Rocket Design 3" />
+              <SectionImg src="docs/assets/Rocket-4.jpg" alt="Rocket Design 4" />
+              <SectionImg src="docs/assets/Rocket-5.jpg" alt="Rocket Design 5" />
+              <SectionImg src="docs/assets/Rocket-6.jpg" alt="Rocket Design 6" />
+              <SectionImg src="docs/assets/Rocket-7.jpg" alt="Rocket Design 7" />
+              <SectionImg src="docs/assets/Rocket-Engine.jpg" alt="Rocket Engine" />
+              <SectionImg src="docs/assets/Rocket-Engine-Diagram.jpg" alt="Rocket Engine Diagram" />
+              <SectionImg src="docs/assets/Rocket-Fuel-Pump.jpg" alt="Rocket Fuel Pump" />
+            </ImagesRow>
             <hr />
-
             <h3>3D Printed Projects</h3>
             <h4 style={{ fontStyle: 'italic' }}>Design Based</h4>
             <h5>Obi-Wan's Lightsaber</h5>
             <p>Designed in Autodesk Inventor</p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/ObiWan-Lightsaber-Render.jpg" alt="Obi-Wan's Lightsaber Render" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/ObiWan-Lightsaber.jpg" alt="Obi-Wan's Lightsaber" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/ObiWan-Lightsaber-2.jpg" alt="Obi-Wan's Lightsaber 2" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/ObiWan-Lightsaber-3.jpg" alt="Obi-Wan's Lightsaber 3" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/ObiWan-Lightsaber-Render.jpg" alt="Obi-Wan's Lightsaber Render" />
+              <SectionImg src="docs/assets/ObiWan-Lightsaber.jpg" alt="Obi-Wan's Lightsaber" />
+              <SectionImg src="docs/assets/ObiWan-Lightsaber-2.jpg" alt="Obi-Wan's Lightsaber 2" />
+              <SectionImg src="docs/assets/ObiWan-Lightsaber-3.jpg" alt="Obi-Wan's Lightsaber 3" />
+            </ImagesRow>
             <h5>Luke's Lightsaber</h5>
             <p>Designed in Autodesk Inventor</p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/Luke-Lightsaber-Render.jpg" alt="Luke's Lightsaber Render" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/Luke-Lightsaber-Render.jpg" alt="Luke's Lightsaber Render" />
+            </ImagesRow>
             <h5>Millennium Falcon</h5>
             <p>Designed in Autodesk Inventor</p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/Millenium-falcon.jpg" alt="Millennium Falcon" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Millenium-falcon-2.jpg" alt="Millennium Falcon 2" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/Millenium-falcon.jpg" alt="Millennium Falcon" />
+              <SectionImg src="docs/assets/Millenium-falcon-2.jpg" alt="Millennium Falcon 2" />
+            </ImagesRow>
             <h5>64-Bit Mario</h5>
             <p>Designed in Autodesk Inventor</p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/Mario.jpg" alt="64-Bit Mini Mario" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Mario-2.jpg" alt="64-Bit Mini Mario 2" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/Mario.jpg" alt="64-Bit Mini Mario" />
+              <SectionImg src="docs/assets/Mario-2.jpg" alt="64-Bit Mini Mario 2" />
+            </ImagesRow>
             <hr />
             <h4 style={{ fontStyle: 'italic' }}>Downloaded Prints</h4>
             <h5>Han's Blaster</h5>
             <p>Downloaded the file and printed</p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/Hans-blaster.jpg" alt="Han's Blaster" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Hans-blaster-2.jpg" alt="Han's Blaster 2" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/Hans-blaster.jpg" alt="Han's Blaster" />
+              <SectionImg src="docs/assets/Hans-blaster-2.jpg" alt="Han's Blaster 2" />
+            </ImagesRow>
             <h5>Dark Saber</h5>
             <p>Downloaded the file and printed</p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/Darksaber-2.jpg" alt="Dark Saber" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Darksaber.jpg" alt="Dark Saber 2" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/Darksaber-2.jpg" alt="Dark Saber" />
+              <SectionImg src="docs/assets/Darksaber.jpg" alt="Dark Saber 2" />
+            </ImagesRow>
             <h5>Pellet Gun</h5>
             <p>Downloaded the file and printed</p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/Pellet-gun.jpg" alt="Pellet Gun" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Pellet-gun-2.jpg" alt="Pellet Gun 2" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/Pellet-gun.jpg" alt="Pellet Gun" />
+              <SectionImg src="docs/assets/Pellet-gun-2.jpg" alt="Pellet Gun 2" />
+            </ImagesRow>
             <h5>Master Chief Bust</h5>
             <p>Downloaded the file and printed</p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/Master-Chief.jpg" alt="Master Chief Bust" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Master-Chief-2.jpg" alt="Master Chief Bust 2" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Master-Chief-3.jpg" alt="Master Chief Bust 3" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/Master-Chief.jpg" alt="Master Chief Bust" />
+              <SectionImg src="docs/assets/Master-Chief-2.jpg" alt="Master Chief Bust 2" />
+              <SectionImg src="docs/assets/Master-Chief-3.jpg" alt="Master Chief Bust 3" />
+            </ImagesRow>
             <h5>Buddha Darth Vader</h5>
             <p>Downloaded the file and printed</p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <img src="docs/assets/Darth-Buddah.jpg" alt="Buddha Darth Vader" style={{ maxWidth: '300px' }} />
-              <img src="docs/assets/Darth-Buddah-2.jpg" alt="Buddha Darth Vader 2" style={{ maxWidth: '300px' }} />
-            </div>
+            <ImagesRow>
+              <SectionImg src="docs/assets/Darth-Buddah.jpg" alt="Buddha Darth Vader" />
+              <SectionImg src="docs/assets/Darth-Buddah-2.jpg" alt="Buddha Darth Vader 2" />
+            </ImagesRow>
           </SectionInner>
         </Section>
       </div>
