@@ -31,6 +31,28 @@ const ButtonRow = styled.div`
   margin-bottom: 3rem;
 `;
 
+const HeroBackground = styled.div`
+  display: ${({ visible }) => (visible ? "flex" : "none")};
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 40vh;
+  width: 100%;
+  margin-bottom: 2.5rem;
+  transition: opacity 0.7s;
+  opacity: ${({ visible }) => (visible ? 1 : 0)};
+`;
+
+const BackgroundImage = styled.img`
+  max-width: 700px;
+  width: 90vw;
+  height: auto;
+  border-radius: 1.2rem;
+  margin: 0 auto 1.5rem auto;
+  box-shadow: 0 2px 24px 0 rgba(17,17,34,0.18);
+  object-fit: cover;
+`;
+
 const Section = styled.section`
   max-width: 800px;
   margin: 0 auto 3rem auto;
@@ -60,6 +82,9 @@ function App() {
     }, 100);
   };
 
+  // Show hero background image only when no section is selected
+  const showHeroBackground = active === null;
+
   return (
     <ThemeProvider theme={darkTheme}>
       <GlobalStyle />
@@ -67,6 +92,12 @@ function App() {
         <Name>Tanner Josiah Peck</Name>
         <Title>Engineering and Design Portfolio</Title>
       </NameTitle>
+      <HeroBackground visible={showHeroBackground}>
+        <BackgroundImage
+          src="docs/assets/background.jpg"
+          alt="Background"
+        />
+      </HeroBackground>
       <ButtonRow>
         <SectionButton onClick={() => handleNav("work")}>
           Professional Work Experience
