@@ -224,7 +224,6 @@ const AboutSectionHeader = styled.h3`
   color: ${({ theme }) => theme.accent};
 `;
 
-// --- BREAKOUT SECTION STYLES ---
 const Section = styled.section`
   width: 100vw;
   display: flex;
@@ -445,7 +444,7 @@ function App() {
         visible={showHeroImage}
         ref={heroImageRef}
       >
-        <HeroImage src="docs/assets/background.jpg" alt="Background" />
+        <HeroImage src="/docs/assets/background.jpg" alt="Background" />
       </HeroImageWrapper>
       {/* About Me Section */}
       <AboutSection
@@ -458,15 +457,10 @@ function App() {
       >
         <AboutContent>
           <AboutLeft>
-            {/* Use a leading slash for public assets if using Create React App or Vite */}
+            {/* This must match the actual filename and case: about.JPG */}
             <AboutImg
-              src="/docs/assets/DSC07786.jpg"
+              src="/docs/assets/about.JPG"
               alt="Tanner Josiah Peck"
-              srcSet="
-                /docs/assets/DSC07786.jpg 1x,
-                /docs/assets/DSC07786@2x.jpg 2x,
-                /docs/assets/DSC07786@3x.jpg 3x
-              "
             />
             <ResumeLink
               href="/docs/assets/Tanner-Peck-Resume.pdf"
