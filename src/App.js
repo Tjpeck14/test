@@ -469,7 +469,7 @@ function App() {
         <AboutContent>
           <AboutLeft>
             <AboutImg
-              src="docs/assets/DSC07786.jpg"
+              src="docs/assets/about.JPG"
               alt="Tanner Josiah Peck"
             />
             <ResumeLink
