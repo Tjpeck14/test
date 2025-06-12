@@ -455,7 +455,8 @@ function App() {
         visible={showHeroImage}
         ref={heroImageRef}
       >
-        <HeroImage src="docs/assets/background.jpg" alt="Background" />
+        {/* FIX: Use "Background.jpg" */}
+        <HeroImage src="docs/assets/Background.jpg" alt="Background" />
       </HeroImageWrapper>
       {/* About Me Section */}
       <AboutSection
@@ -468,8 +469,9 @@ function App() {
       >
         <AboutContent>
           <AboutLeft>
+            {/* FIX: Use "About.jpg" */}
             <AboutImg
-              src="docs/assets/about.JPG"
+              src="docs/assets/About.jpg"
               alt="Tanner Josiah Peck"
             />
             <ResumeLink
