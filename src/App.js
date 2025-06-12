@@ -118,7 +118,7 @@ const AboutSection = styled.section`
   align-items: center;
   padding: 2.5rem 0;
   margin: 0;
-  min-height: 320px;
+  min-height: 220px;
   opacity: ${({ visible }) => (visible ? 1 : 0)};
   transform: translateY(${({ visible }) => (visible ? "0" : "20px")});
   transition: opacity 0.7s, transform 0.7s;
@@ -130,10 +130,10 @@ const AboutContent = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 2.5rem;
-  max-width: 900px;
+  max-width: 820px;
   width: 100%;
   padding: 0 2rem;
-  @media (max-width: 950px) {
+  @media (max-width: 760px) {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
@@ -145,20 +145,18 @@ const AboutLeft = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 275px;
-  max-width: 350px;
+  min-width: 175px;
+  max-width: 220px;
 `;
 
 const AboutImg = styled.img`
-  width: 280px;
-  height: 280px;
+  width: 160px;
+  height: 160px;
   object-fit: cover;
-  object-position: 50% 50%;
   border-radius: 100%;
   margin-bottom: 1rem;
-  box-shadow: 0 1px 16px 0 rgba(17,17,34,0.16);
+  box-shadow: 0 1px 8px 0 rgba(17,17,34,0.09);
   background: #222;
-  image-rendering: auto;
 `;
 
 const ResumeLink = styled.a`
@@ -224,6 +222,7 @@ const AboutSectionHeader = styled.h3`
   color: ${({ theme }) => theme.accent};
 `;
 
+// --- BREAKOUT SECTION STYLES ---
 const Section = styled.section`
   width: 100vw;
   display: flex;
@@ -297,15 +296,21 @@ function App() {
   const [showNameTitle, setShowNameTitle] = useState(true);
   const [showAbout, setShowAbout] = useState(true);
 
+  // Show about section only when hero is not visible and before first breakout section is reached.
   useEffect(() => {
     const handleScroll = () => {
+      // Viewport offsets
       const heroRect = heroImageRef.current
         ? heroImageRef.current.getBoundingClientRect()
         : { bottom: 0, top: 0 };
+      const aboutRect = sectionRefs.about.current
+        ? sectionRefs.about.current.getBoundingClientRect()
+        : { top: 0, bottom: 0, height: 1 };
       const workRect = sectionRefs.work.current
         ? sectionRefs.work.current.getBoundingClientRect()
         : { top: 0, height: 1 };
 
+      // Show hero if at the very top, else hide
       if (window.scrollY < 30) {
         setShowHeroImage(true);
         setShowNameTitle(true);
@@ -316,14 +321,16 @@ function App() {
         setShowNameTitle(false);
       }
 
+      // About section shows after hero has scrolled out, but before work section begins
+      // About section is visible if its top is above nav but work section is not yet at top
       if (!heroImageRef.current) {
         setShowAbout(false);
         return;
       }
       const navHeight = document.querySelector("nav")?.offsetHeight || 64;
       if (
-        heroRect.bottom <= navHeight + 1 &&
-        workRect.top > navHeight + 1
+        heroRect.bottom <= navHeight + 1 && // Hero is out of view
+        workRect.top > navHeight + 1 // Work section not reached yet
       ) {
         setShowAbout(true);
       } else {
@@ -337,8 +344,10 @@ function App() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
+    // eslint-disable-next-line
   }, []);
 
+  // Section reveal on scroll
   useEffect(() => {
     const observer = new window.IntersectionObserver(
       (entries) => {
@@ -366,8 +375,10 @@ function App() {
     });
 
     return () => observer.disconnect();
+    // eslint-disable-next-line
   }, []);
 
+  // Helper: Scroll with navbar offset
   const scrollToSection = (ref) => {
     if (ref && ref.current) {
       const nav = document.querySelector("nav");
@@ -376,7 +387,7 @@ function App() {
         ref.current.getBoundingClientRect().top +
         window.pageYOffset -
         navHeight -
-        10;
+        10; // Add a little extra spacing
       window.scrollTo({ top, behavior: "smooth" });
     }
   };
@@ -444,7 +455,7 @@ function App() {
         visible={showHeroImage}
         ref={heroImageRef}
       >
-        <HeroImage src="/docs/assets/background.jpg" alt="Background" />
+        <HeroImage src="docs/assets/background.jpg" alt="Background" />
       </HeroImageWrapper>
       {/* About Me Section */}
       <AboutSection
@@ -457,13 +468,12 @@ function App() {
       >
         <AboutContent>
           <AboutLeft>
-            {/* This must match the actual filename and case: about.JPG */}
             <AboutImg
-              src="/docs/assets/about.JPG"
+              src="docs/assets/DSC07786.jpg"
               alt="Tanner Josiah Peck"
             />
             <ResumeLink
-              href="/docs/assets/Tanner-Peck-Resume.pdf"
+              href="docs/assets/Tanner-Peck-Resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
               download
