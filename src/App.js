@@ -110,6 +110,7 @@ const HeroImage = styled.img`
   object-fit: cover;
 `;
 
+// === CHANGE: About image is now larger and supports retina/high-dpi screens via srcSet ===
 const AboutSection = styled.section`
   width: 100vw;
   background: ${({ theme }) => theme.sectionBg || "#212325"};
@@ -118,7 +119,7 @@ const AboutSection = styled.section`
   align-items: center;
   padding: 2.5rem 0;
   margin: 0;
-  min-height: 220px;
+  min-height: 320px;
   opacity: ${({ visible }) => (visible ? 1 : 0)};
   transform: translateY(${({ visible }) => (visible ? "0" : "20px")});
   transition: opacity 0.7s, transform 0.7s;
@@ -130,10 +131,10 @@ const AboutContent = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 2.5rem;
-  max-width: 820px;
+  max-width: 900px;
   width: 100%;
   padding: 0 2rem;
-  @media (max-width: 760px) {
+  @media (max-width: 950px) {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
@@ -145,18 +146,20 @@ const AboutLeft = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 175px;
-  max-width: 220px;
+  min-width: 275px;
+  max-width: 350px;
 `;
 
 const AboutImg = styled.img`
-  width: 160px;
-  height: 160px;
+  width: 280px;
+  height: 280px;
   object-fit: cover;
+  object-position: 50% 50%;
   border-radius: 100%;
   margin-bottom: 1rem;
-  box-shadow: 0 1px 8px 0 rgba(17,17,34,0.09);
+  box-shadow: 0 1px 16px 0 rgba(17,17,34,0.16);
   background: #222;
+  image-rendering: auto;
 `;
 
 const ResumeLink = styled.a`
@@ -468,9 +471,15 @@ function App() {
       >
         <AboutContent>
           <AboutLeft>
+            {/* For best quality, place high-res versions at docs/assets/DSC07786@2x.jpg and @3x.jpg */}
             <AboutImg
               src="docs/assets/DSC07786.jpg"
               alt="Tanner Josiah Peck"
+              srcSet="
+                docs/assets/DSC07786.jpg 1x,
+                docs/assets/DSC07786@2x.jpg 2x,
+                docs/assets/DSC07786@3x.jpg 3x
+              "
             />
             <ResumeLink
               href="docs/assets/Tanner-Peck-Resume.pdf"
@@ -719,4 +728,3 @@ function App() {
 }
 
 export default App;
-
