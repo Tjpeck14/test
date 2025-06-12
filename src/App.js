@@ -5,6 +5,8 @@ import { darkTheme } from "./theme";
 import SectionButton from "./SectionButton";
 
 // --- NEW BANNER NAV STYLES ---
+const NAV_HEIGHT = 64; // px, matches CSS and scroll calculations
+
 const BannerNav = styled.nav`
   position: sticky;
   top: 0;
@@ -14,7 +16,7 @@ const BannerNav = styled.nav`
   background: ${({ theme }) => theme.banner || "#181A1B"};
   box-shadow: 0 2px 24px 0 rgba(17,17,34,0.18);
   padding: 0.5rem 0.5rem;
-  min-height: 56px;
+  min-height: ${NAV_HEIGHT}px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -114,27 +116,37 @@ const HeroImage = styled.img`
   margin-top: 2rem;
 `;
 
-const AboutSection = styled.section`
+// Remove extra space, use min-height 100vh minus nav height, no top/bottom padding/margin, and add scroll-margin-top
+const SectionBase = styled.section`
   width: 100vw;
-  min-height: 92vh;
-  max-height: 1500px;
-  background: ${({ theme }) => theme.sectionBg || "#212325"};
+  min-height: calc(100vh - ${NAV_HEIGHT}px);
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 6vh 0;
-  margin: 0;
+  justify-content: center;
   box-sizing: border-box;
+  background: ${({ theme }) => theme.sectionBg || "#212325"};
   opacity: ${({ visible }) => (visible ? 1 : 0)};
   transform: ${({ active }) =>
     active ? "translateY(0px) scale(1)" : "translateY(10vh) scale(0.98)"};
-  transition: 
-    opacity 0.7s, 
+  transition:
+    opacity 0.7s,
     transform 0.7s cubic-bezier(.4,0,.2,1);
   pointer-events: ${({ visible }) => (visible ? "auto" : "none")};
+  border-top: 1px solid ${({ theme }) => theme.accent};
   border-bottom: 1px solid ${({ theme }) => theme.accent};
   position: relative;
   z-index: 1;
+  scroll-margin-top: ${NAV_HEIGHT + 12}px; /* ensures section title is not blocked by nav */
+`;
+
+const AboutSection = styled(SectionBase)`
+  /* Ensures content stays centered and big */
+  padding: 0;
+`;
+
+const Section = styled(SectionBase)`
+  flex-direction: column;
+  padding: 0;
 `;
 
 const AboutContent = styled.div`
@@ -233,32 +245,6 @@ const AboutSectionHeader = styled.h3`
   color: ${({ theme }) => theme.accent};
 `;
 
-// --- BREAKOUT SECTION STYLES ---
-const Section = styled.section`
-  width: 100vw;
-  min-height: 92vh;
-  max-height: 1500px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0 auto 0 auto;
-  padding: 6vh 0 6vh 0;
-  background: ${({ theme }) => theme.sectionBg || "#212325"};
-  box-shadow: none;
-  opacity: ${({ visible }) => (visible ? 1 : 0)};
-  transform: ${({ active }) =>
-    active ? "translateY(0) scale(1)" : "translateY(10vh) scale(0.98)"};
-  pointer-events: ${({ visible }) => (visible ? "auto" : "none")};
-  transition: 
-    opacity 0.7s, 
-    transform 0.7s cubic-bezier(.4,0,.2,1);
-  color: ${({ theme }) => theme.text};
-  border-top: 1px solid ${({ theme }) => theme.accent};
-  border-bottom: 1px solid ${({ theme }) => theme.accent};
-  position: relative;
-  z-index: 1;
-`;
-
 const SectionInner = styled.div`
   max-width: 950px;
   margin: 0 auto;
@@ -291,26 +277,31 @@ const SectionImg = styled.img`
   aspect-ratio: 4/3;
 `;
 
-// Utility hook for section visibility
 function useSectionVisibility(sectionRefs, setSectionStates) {
   useEffect(() => {
     const observer = new window.IntersectionObserver(
       (entries) => {
+        let mostVisibleEntry = null;
+        let maxRatio = 0;
         entries.forEach((entry) => {
-          const id = entry.target.getAttribute("data-section-id");
-          // Only show one section at a time (the one most in view)
-          if (entry.isIntersecting) {
-            setSectionStates((prev) => {
-              const newState = {};
-              Object.keys(prev).forEach((k) => (newState[k] = false));
-              newState[id] = true;
-              return newState;
-            });
+          if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
+            mostVisibleEntry = entry;
+            maxRatio = entry.intersectionRatio;
           }
         });
+        if (mostVisibleEntry) {
+          const id = mostVisibleEntry.target.getAttribute("data-section-id");
+          setSectionStates((prev) => {
+            const newState = {};
+            Object.keys(prev).forEach((k) => (newState[k] = false));
+            newState[id] = true;
+            return newState;
+          });
+        }
       },
       {
-        threshold: 0.5, // Section must be at least 50% visible to take over
+        threshold: Array.from({ length: 21 }, (_, i) => i / 20),
+        rootMargin: `-${NAV_HEIGHT}px 0px 0px 0px`, // so nav doesn't block detection
       }
     );
     Object.entries(sectionRefs).forEach(([id, ref]) => {
@@ -360,7 +351,7 @@ function App() {
         setShowNameTitle(true);
         setActive(null);
       } else {
-        setShowHeroImage(heroRect.bottom > 64);
+        setShowHeroImage(heroRect.bottom > NAV_HEIGHT);
         setShowNameTitle(false);
       }
     };
@@ -373,12 +364,12 @@ function App() {
   const scrollToSection = (ref) => {
     if (ref && ref.current) {
       const nav = document.querySelector("nav");
-      const navHeight = nav ? nav.offsetHeight : 64;
+      const navHeight = nav ? nav.offsetHeight : NAV_HEIGHT;
       const top =
         ref.current.getBoundingClientRect().top +
         window.pageYOffset -
         navHeight -
-        10;
+        12; // 12px extra spacing
       window.scrollTo({ top, behavior: "smooth" });
     }
   };
