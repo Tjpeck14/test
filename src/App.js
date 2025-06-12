@@ -110,7 +110,6 @@ const HeroImage = styled.img`
   object-fit: cover;
 `;
 
-// === CHANGE: About image is now larger and supports retina/high-dpi screens via srcSet ===
 const AboutSection = styled.section`
   width: 100vw;
   background: ${({ theme }) => theme.sectionBg || "#212325"};
@@ -299,21 +298,15 @@ function App() {
   const [showNameTitle, setShowNameTitle] = useState(true);
   const [showAbout, setShowAbout] = useState(true);
 
-  // Show about section only when hero is not visible and before first breakout section is reached.
   useEffect(() => {
     const handleScroll = () => {
-      // Viewport offsets
       const heroRect = heroImageRef.current
         ? heroImageRef.current.getBoundingClientRect()
         : { bottom: 0, top: 0 };
-      const aboutRect = sectionRefs.about.current
-        ? sectionRefs.about.current.getBoundingClientRect()
-        : { top: 0, bottom: 0, height: 1 };
       const workRect = sectionRefs.work.current
         ? sectionRefs.work.current.getBoundingClientRect()
         : { top: 0, height: 1 };
 
-      // Show hero if at the very top, else hide
       if (window.scrollY < 30) {
         setShowHeroImage(true);
         setShowNameTitle(true);
@@ -324,16 +317,14 @@ function App() {
         setShowNameTitle(false);
       }
 
-      // About section shows after hero has scrolled out, but before work section begins
-      // About section is visible if its top is above nav but work section is not yet at top
       if (!heroImageRef.current) {
         setShowAbout(false);
         return;
       }
       const navHeight = document.querySelector("nav")?.offsetHeight || 64;
       if (
-        heroRect.bottom <= navHeight + 1 && // Hero is out of view
-        workRect.top > navHeight + 1 // Work section not reached yet
+        heroRect.bottom <= navHeight + 1 &&
+        workRect.top > navHeight + 1
       ) {
         setShowAbout(true);
       } else {
@@ -347,10 +338,8 @@ function App() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-    // eslint-disable-next-line
   }, []);
 
-  // Section reveal on scroll
   useEffect(() => {
     const observer = new window.IntersectionObserver(
       (entries) => {
@@ -378,10 +367,8 @@ function App() {
     });
 
     return () => observer.disconnect();
-    // eslint-disable-next-line
   }, []);
 
-  // Helper: Scroll with navbar offset
   const scrollToSection = (ref) => {
     if (ref && ref.current) {
       const nav = document.querySelector("nav");
@@ -390,7 +377,7 @@ function App() {
         ref.current.getBoundingClientRect().top +
         window.pageYOffset -
         navHeight -
-        10; // Add a little extra spacing
+        10;
       window.scrollTo({ top, behavior: "smooth" });
     }
   };
@@ -471,18 +458,18 @@ function App() {
       >
         <AboutContent>
           <AboutLeft>
-            {/* For best quality, place high-res versions at docs/assets/DSC07786@2x.jpg and @3x.jpg */}
+            {/* Use a leading slash for public assets if using Create React App or Vite */}
             <AboutImg
-              src="docs/assets/DSC07786.jpg"
+              src="/docs/assets/DSC07786.jpg"
               alt="Tanner Josiah Peck"
               srcSet="
-                docs/assets/DSC07786.jpg 1x,
-                docs/assets/DSC07786@2x.jpg 2x,
-                docs/assets/DSC07786@3x.jpg 3x
+                /docs/assets/DSC07786.jpg 1x,
+                /docs/assets/DSC07786@2x.jpg 2x,
+                /docs/assets/DSC07786@3x.jpg 3x
               "
             />
             <ResumeLink
-              href="docs/assets/Tanner-Peck-Resume.pdf"
+              href="/docs/assets/Tanner-Peck-Resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
               download
