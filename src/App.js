@@ -296,16 +296,45 @@ function App() {
   const [showNameTitle, setShowNameTitle] = useState(true);
   const [showAbout, setShowAbout] = useState(true);
 
-  // Show about section only when hero is not visible and before first breakout section is reached.
+  // --- FIX: Reveal About section as soon as it is visible in viewport ---
+  useEffect(() => {
+    // Reveal About section if user scrolls to it (even if not using button navigation)
+    const observer = new window.IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const id = entry.target.getAttribute("data-section-id");
+          if (entry.isIntersecting) {
+            setRevealedSections((rs) => {
+              if (!rs[id]) return { ...rs, [id]: true };
+              return rs;
+            });
+          }
+        });
+      },
+      {
+        threshold: 0.01,
+        rootMargin: "0px 0px -40% 0px",
+      }
+    );
+
+    Object.entries(sectionRefs).forEach(([id, ref]) => {
+      if (ref.current) {
+        ref.current.setAttribute("data-section-id", id);
+        observer.observe(ref.current);
+      }
+    });
+
+    return () => observer.disconnect();
+    // eslint-disable-next-line
+  }, []);
+
+  // --- FIX: Ensure About section is visible when it should be ---
   useEffect(() => {
     const handleScroll = () => {
       // Viewport offsets
       const heroRect = heroImageRef.current
         ? heroImageRef.current.getBoundingClientRect()
         : { bottom: 0, top: 0 };
-      const aboutRect = sectionRefs.about.current
-        ? sectionRefs.about.current.getBoundingClientRect()
-        : { top: 0, bottom: 0, height: 1 };
       const workRect = sectionRefs.work.current
         ? sectionRefs.work.current.getBoundingClientRect()
         : { top: 0, height: 1 };
@@ -333,6 +362,11 @@ function App() {
         workRect.top > navHeight + 1 // Work section not reached yet
       ) {
         setShowAbout(true);
+        // --- FIX: Also reveal About section immediately when About is visible ---
+        setRevealedSections((rs) => {
+          if (!rs.about) return { ...rs, about: true };
+          return rs;
+        });
       } else {
         setShowAbout(false);
       }
@@ -344,37 +378,6 @@ function App() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-    // eslint-disable-next-line
-  }, []);
-
-  // Section reveal on scroll
-  useEffect(() => {
-    const observer = new window.IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const id = entry.target.getAttribute("data-section-id");
-            setRevealedSections((rs) => {
-              if (!rs[id]) return { ...rs, [id]: true };
-              return rs;
-            });
-          }
-        });
-      },
-      {
-        threshold: 0.01,
-        rootMargin: "0px 0px -40% 0px",
-      }
-    );
-
-    Object.entries(sectionRefs).forEach(([id, ref]) => {
-      if (ref.current) {
-        ref.current.setAttribute("data-section-id", id);
-        observer.observe(ref.current);
-      }
-    });
-
-    return () => observer.disconnect();
     // eslint-disable-next-line
   }, []);
 
@@ -455,13 +458,12 @@ function App() {
         visible={showHeroImage}
         ref={heroImageRef}
       >
-        {/* FIX: Use "Background.jpg" */}
         <HeroImage src="docs/assets/Background.jpg" alt="Background" />
       </HeroImageWrapper>
       {/* About Me Section */}
       <AboutSection
         ref={sectionRefs.about}
-        visible={showAbout}
+        visible={showAbout && revealedSections.about}
         style={{
           margin: 0,
           borderTop: showHeroImage ? "none" : undefined,
@@ -469,7 +471,6 @@ function App() {
       >
         <AboutContent>
           <AboutLeft>
-            {/* FIX: Use "About.jpg" */}
             <AboutImg
               src="docs/assets/About.jpg"
               alt="Tanner Josiah Peck"
