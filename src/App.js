@@ -135,7 +135,7 @@ const AboutSection = styled.section`
   border-bottom: 1px solid ${({ theme }) => theme.accent};
   position: relative;
   z-index: 1;
-  scroll-margin-top: 80px; /* Added for navbar offset */
+  scroll-margin-top: 80px; /* For navbar offset */
 `;
 
 const AboutContent = styled.div`
@@ -234,7 +234,6 @@ const AboutSectionHeader = styled.h3`
   color: ${({ theme }) => theme.accent};
 `;
 
-// --- BREAKOUT SECTION STYLES ---
 const Section = styled.section`
   width: 100vw;
   min-height: 92vh;
@@ -243,7 +242,7 @@ const Section = styled.section`
   flex-direction: column;
   align-items: center;
   margin: 0 auto 0 auto;
-  padding: 7vh 0 7vh 0; /* Slightly increased for visual separation */
+  padding: 7vh 0 7vh 0;
   background: ${({ theme }) => theme.sectionBg || "#212325"};
   box-shadow: none;
   opacity: ${({ visible }) => (visible ? 1 : 0)};
@@ -258,7 +257,7 @@ const Section = styled.section`
   border-bottom: 1px solid ${({ theme }) => theme.accent};
   position: relative;
   z-index: 1;
-  scroll-margin-top: 80px; /* Key for navbar offset */
+  scroll-margin-top: 80px; /* For navbar offset */
 `;
 
 const SectionInner = styled.div`
@@ -300,7 +299,6 @@ function useSectionVisibility(sectionRefs, setSectionStates) {
       (entries) => {
         entries.forEach((entry) => {
           const id = entry.target.getAttribute("data-section-id");
-          // Only show one section at a time (the one most in view)
           if (entry.isIntersecting) {
             setSectionStates((prev) => {
               const newState = {};
@@ -312,7 +310,7 @@ function useSectionVisibility(sectionRefs, setSectionStates) {
         });
       },
       {
-        threshold: 0.5, // Section must be at least 50% visible to take over
+        threshold: 0.5,
       }
     );
     Object.entries(sectionRefs).forEach(([id, ref]) => {
@@ -322,7 +320,6 @@ function useSectionVisibility(sectionRefs, setSectionStates) {
       }
     });
     return () => observer.disconnect();
-    // eslint-disable-next-line
   }, []);
 }
 
@@ -336,7 +333,6 @@ function App() {
   const heroImageRef = useRef(null);
   const contentAnchorRef = useRef(null);
 
-  // Only one section is visible at a time (or none)
   const [revealedSections, setRevealedSections] = useState({
     about: false,
     work: false,
@@ -348,10 +344,8 @@ function App() {
   const [showHeroImage, setShowHeroImage] = useState(true);
   const [showNameTitle, setShowNameTitle] = useState(true);
 
-  // Handle section visibility as you scroll
   useSectionVisibility(sectionRefs, setRevealedSections);
 
-  // Hero and About section logic
   useEffect(() => {
     const handleScroll = () => {
       const heroRect = heroImageRef.current
@@ -371,27 +365,31 @@ function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Helper: Scroll with navbar offset using scrollIntoView and scroll-margin-top
+  // Improved scrollToSection logic to avoid overscroll on any section
   const scrollToSection = (ref) => {
     if (ref && ref.current) {
-      // First, scroll into view with scroll-margin-top (CSS), then check if the title is still blocked, if so, scroll a bit more
       ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
-      // After smooth scroll, add a little extra offset to guarantee the title is shown (in case of mobile or browser rounding issues)
       setTimeout(() => {
-        // Find the element's position relative to viewport
         const rect = ref.current.getBoundingClientRect();
-        // Get the height of the navbar
         const nav = document.querySelector("nav");
         const navHeight = nav ? nav.offsetHeight : 80;
-        // If the element's top is less than the navbar height, scroll a bit more
-        if (rect.top < navHeight + 8) {
-          window.scrollBy({ top: rect.top - navHeight - 12, left: 0, behavior: "smooth" });
+        const pageYOffset = window.pageYOffset || document.documentElement.scrollTop;
+        // Avoid scroll correction if already at the very top or if section is not covered
+        if (
+          rect.top < navHeight + 2 &&
+          pageYOffset > 5 && // not at the top
+          Math.abs(rect.top) > 2 // not already flush with the top
+        ) {
+          window.scrollBy({
+            top: rect.top - navHeight - 2,
+            left: 0,
+            behavior: "smooth",
+          });
         }
-      }, 420); // Wait for the initial smooth scroll to finish
+      }, 420);
     }
   };
 
-  // Navigation: reveal and scroll to section
   const handleNav = (id) => {
     setRevealedSections((prev) => {
       const newState = {};
