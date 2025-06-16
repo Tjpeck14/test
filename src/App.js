@@ -135,6 +135,7 @@ const AboutSection = styled.section`
   border-bottom: 1px solid ${({ theme }) => theme.accent};
   position: relative;
   z-index: 1;
+  scroll-margin-top: 72px; /* Added for navbar offset */
 `;
 
 const AboutContent = styled.div`
@@ -242,7 +243,7 @@ const Section = styled.section`
   flex-direction: column;
   align-items: center;
   margin: 0 auto 0 auto;
-  padding: 6vh 0 6vh 0;
+  padding: 7vh 0 7vh 0; /* Slightly increased for visual separation */
   background: ${({ theme }) => theme.sectionBg || "#212325"};
   box-shadow: none;
   opacity: ${({ visible }) => (visible ? 1 : 0)};
@@ -257,6 +258,7 @@ const Section = styled.section`
   border-bottom: 1px solid ${({ theme }) => theme.accent};
   position: relative;
   z-index: 1;
+  scroll-margin-top: 72px; /* Key for navbar offset */
 `;
 
 const SectionInner = styled.div`
@@ -369,17 +371,10 @@ function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Helper: Scroll with navbar offset
+  // Helper: Scroll with navbar offset using scrollIntoView and scroll-margin-top
   const scrollToSection = (ref) => {
     if (ref && ref.current) {
-      const nav = document.querySelector("nav");
-      const navHeight = nav ? nav.offsetHeight : 64;
-      const top =
-        ref.current.getBoundingClientRect().top +
-        window.pageYOffset -
-        navHeight -
-        10;
-      window.scrollTo({ top, behavior: "smooth" });
+      ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -518,7 +513,7 @@ function App() {
           active={revealedSections.work}
         >
           <SectionInner>
-            <h2 style={{ marginTop: 0, fontSize: "2.3rem" }}>Professional Work Experience</h2>
+            <h2 style={{ marginTop: 0, fontSize: "2.3rem", paddingTop: "0.5em" }}>Professional Work Experience</h2>
             <h3 style={{ fontSize: "1.5rem" }}>Engineering Internship at Lasko Products, West Chester PA</h3>
             <p style={{ fontSize: "1.25rem" }}>Managed multiple projects in different divisions of Lasko Products as the sole Engineering Intern</p>
             <h4 style={{ fontSize: "1.18rem" }}>Product Breakdown and Cost Analysis</h4>
@@ -590,7 +585,7 @@ function App() {
           active={revealedSections.school}
         >
           <SectionInner>
-            <h2 style={{ marginTop: 0, fontSize: "2.3rem" }}>School and Educational Work</h2>
+            <h2 style={{ marginTop: 0, fontSize: "2.3rem", paddingTop: "0.5em" }}>School and Educational Work</h2>
             <h3 style={{ fontSize: "1.5rem" }}>Project 1: Linear Inverted Pendulum Control</h3>
             <ImagesRow>
               <SectionImg src="/images/lip.jpg" alt="LIP Control" />
@@ -614,7 +609,7 @@ function App() {
           active={revealedSections.personal}
         >
           <SectionInner>
-            <h2 style={{ marginTop: 0, fontSize: "2.3rem" }}>Personal Projects</h2>
+            <h2 style={{ marginTop: 0, fontSize: "2.3rem", paddingTop: "0.5em" }}>Personal Projects</h2>
             <h4 style={{ fontSize: "1.22rem" }}>College Dorm Room Layout</h4>
             <p style={{ fontSize: "1.14rem" }}>Designed in Onshape</p>
             <ImagesRow>
@@ -713,6 +708,3 @@ function App() {
 }
 
 export default App;
-
-
-
