@@ -135,7 +135,7 @@ const AboutSection = styled.section`
   border-bottom: 1px solid ${({ theme }) => theme.accent};
   position: relative;
   z-index: 1;
-  scroll-margin-top: 72px; /* Added for navbar offset */
+  scroll-margin-top: 80px; /* Added for navbar offset */
 `;
 
 const AboutContent = styled.div`
@@ -258,7 +258,7 @@ const Section = styled.section`
   border-bottom: 1px solid ${({ theme }) => theme.accent};
   position: relative;
   z-index: 1;
-  scroll-margin-top: 72px; /* Key for navbar offset */
+  scroll-margin-top: 80px; /* Key for navbar offset */
 `;
 
 const SectionInner = styled.div`
@@ -374,7 +374,20 @@ function App() {
   // Helper: Scroll with navbar offset using scrollIntoView and scroll-margin-top
   const scrollToSection = (ref) => {
     if (ref && ref.current) {
+      // First, scroll into view with scroll-margin-top (CSS), then check if the title is still blocked, if so, scroll a bit more
       ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      // After smooth scroll, add a little extra offset to guarantee the title is shown (in case of mobile or browser rounding issues)
+      setTimeout(() => {
+        // Find the element's position relative to viewport
+        const rect = ref.current.getBoundingClientRect();
+        // Get the height of the navbar
+        const nav = document.querySelector("nav");
+        const navHeight = nav ? nav.offsetHeight : 80;
+        // If the element's top is less than the navbar height, scroll a bit more
+        if (rect.top < navHeight + 8) {
+          window.scrollBy({ top: rect.top - navHeight - 12, left: 0, behavior: "smooth" });
+        }
+      }, 420); // Wait for the initial smooth scroll to finish
     }
   };
 
